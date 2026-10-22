@@ -62,11 +62,16 @@ Record design decisions per feature as the owner makes them; don't change decide
 - **Activation:** a vanilla `Tool_Hatchet_Iron`, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`. The vanilla hatchet item is not changed.
 - **Any material:** `DamageBlockEvent` raises each hit to at least 0.3 damage (the hatchet's wood power; every block has 1.0 health), so anything breaks in 4 hits.
   - **Durability:** unchanged. The server deducts it after the event with no hook, so a world task restores it.
-- **Area:** on `BreakBlockEvent`, every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperHatchet.radius` breaks too; the blocks don't have to be connected. It runs as a world task after the original break.
-  - **Defaults:** radius 5, no drops for the area blocks; the hit block drops normally.
-  - **Dev commands:** `/lawofmilk hatchetradius <0-32>` and `/lawofmilk hatchetdrops` (toggle) change these at runtime. They're operator-only and not saved.
-  - **Timing:** every area break logs its block count and time.
-- **Measured (2026-10-22, radius 10, with drops):** 2,863 stone blocks took 62 ms (about 2 server ticks); dirt and grass took 7–16 ms.
+- **Area:** on `BreakBlockEvent`, every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperHatchet.radius` is also removed; the blocks don't have to be connected. It runs as a world task after the original break.
+  - **Mechanism (decided 2026-10-22):** the area blocks are set straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). They are not broken like mined blocks: no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated. The owner dropped the area-drops option for this.
+  - **Defaults:** radius 5. The hit block itself breaks and drops normally.
+  - **Dev command:** `/lawofmilk hatchetradius <0-32>` sets the radius at runtime. It's operator-only and not saved.
+  - **Timing:** every area removal logs its block count and time.
+- **Measured (2026-10-22) with the earlier per-block `performBlockBreak` (break events, sounds, particles):**
+  - radius 10, with drops: 2,863 stone blocks took 62 ms (about 2 server ticks);
+  - radius 32, no drops: about 70,000 stone blocks took 300–400 ms.
+
+  The client then showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first. The owner found the `setBlock` version good.
 - **Known limits:** the server only fires `DamageBlockEvent` if the held tool has a gather spec for the block's gather type, with enough quality. So these stay unminable with the super hatchet:
   - quality-gated blocks: `Rock_Basalt`, limestone, shale cobble, stalactites, geysers, Mithril-in-stone, Adamantite-in-magma (13 vanilla blocks);
   - gather types the hatchet has no spec for: GoblinMetal, SoftWoods, Pickaxe_Tier0 (9 blocks);

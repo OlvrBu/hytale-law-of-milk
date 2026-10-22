@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 /**
  * The super hatchet: an Iron Hatchet used while the player carries exactly the right crystals
  * mines any material (as fast as it chops wood), keeps its durability, and breaking a block also
- * breaks every block of the same type within {@link #radius} blocks (without drops unless
- * {@link #areaDrops} is on; the block actually hit always drops normally).
+ * removes every block of the same type within {@link #radius} blocks (without drops; the block
+ * actually hit drops normally).
  */
 public final class SuperHatchet {
 
@@ -30,8 +30,6 @@ public final class SuperHatchet {
     static final int MAX_RADIUS = 32;
     /** Area break radius in blocks. Changed at runtime by {@code /lawofmilk hatchetradius}; not saved. */
     static volatile int radius = 5;
-    /** Whether the area's blocks drop items. Toggled by {@code /lawofmilk hatchetdrops}; not saved. */
-    static volatile boolean areaDrops = false;
 
     private SuperHatchet() {
     }
