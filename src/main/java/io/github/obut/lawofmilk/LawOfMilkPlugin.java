@@ -23,7 +23,7 @@ public class LawOfMilkPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         config.save();
-        GnomeBlock.register();
+        GnomeBlock.register(this);
         this.getCommandRegistry().registerCommand(new ExampleCommand("example", "An example command"));
         if (getConfig().get().isEnabledWelcomeMessage()) {
             this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, ExampleEvent::onPlayerReady);

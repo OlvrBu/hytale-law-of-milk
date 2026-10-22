@@ -1,7 +1,7 @@
 {
   "Parent": "Deco_Kweebec_Plush",
   "TranslationProperties": {
-    "Name": "lawofmilk.items.Deco_Kweebec_Plush_Screaming.name"
+    "Name": "lawofmilk.items.Deco_Kweebec_Plush_Suspicious.name"
   },
   "Icon": "Icons/ItemsGenerated/Deco_Kweebec_Plush.png",
   "Recipe": {
@@ -25,7 +25,19 @@
     "RandomTickProcedure": {
       "Type": "LawOfMilk_RandomSound",
       "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
-      "Chance": 1.0
+      "Chance": 0.05,
+      "OffsetRadius": 6.0
+    },
+    "Interactions": {
+      "Use": {
+        "Interactions": [
+          {
+            "Type": "LawOfMilk_PlaySoundAround",
+            "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
+            "OffsetRadius": 6.0
+          }
+        ]
+      }
     }
   }
 }

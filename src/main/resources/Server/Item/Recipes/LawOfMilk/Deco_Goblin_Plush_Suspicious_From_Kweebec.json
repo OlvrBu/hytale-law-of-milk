@@ -1,0 +1,27 @@
+{
+  "Input": [
+    {
+      "ItemId": "Deco_Kweebec_Plush",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Deco_Goblin_Plush_Suspicious",
+    "Quantity": 1
+  },
+  "Output": [
+    {
+      "ItemId": "Deco_Goblin_Plush_Suspicious",
+      "Quantity": 1
+    }
+  ],
+  "BenchRequirement": [
+    {
+      "Type": "StructuralCrafting",
+      "Id": "Builders",
+      "Categories": [
+        "Decorative"
+      ]
+    }
+  ]
+}

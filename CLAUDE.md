@@ -4,9 +4,9 @@
 
 A Hytale (Early Access, 0.7.x) server plugin + asset pack. Name: "Law Of Milk" (mod ID `lawofmilk`, package `io.github.obut.lawofmilk`, main class `LawOfMilkPlugin`).
 
-Gameplay design: not decided yet (see [Design](#design)).
+The mod is a collection of small, independent fun ideas, of very different implementation depth. It's both for fun and for exploring and pushing what the modding API can do. Each idea lives in its own subpackage of `io.github.obut.lawofmilk` with a `register(...)` method called from `LawOfMilkPlugin.setup()`, and its own section under [Features](#features).
 
-Created on 2026-10-22 from the HytaleModding plugin template (https://github.com/HytaleModding/plugin-template, commit `b7d12fd`). The template's example command, config and event classes are still in place as references and can be replaced. The owner's first mod, Transmutation Chest (`../transmutation_chest`), is a finished, working example of a block component, custom UI, commands, config files and unit tests on this server version. Look there first for patterns that are already verified.
+Created on 2026-10-22 from the HytaleModding plugin template (https://github.com/HytaleModding/plugin-template, commit `b7d12fd`). The template's example command, config and event classes are still in place as references and can be replaced. Its config writes `example_config.json` (+ `.bak`) into `src/main/resources` on every dev server start, because the dev server uses that folder as the plugin's data folder. The owner's first mod, Transmutation Chest (`../transmutation_chest`), is a finished, working example of a block component, custom UI, commands, config files and unit tests on this server version. Look there first for patterns that are already verified.
 
 ## Working with the developer
 
@@ -43,9 +43,19 @@ The Hytale API is young, changes between Early Access updates, and is not well r
 - When a community guide and the server JAR disagree, the JAR wins.
 - Useful references: https://hytalemodding.dev/en/docs, https://github.com/AzureDoom/Hytale-Gradle-Plugin
 
-## Design
+## Features
 
-Not decided yet. Record decisions here as the owner makes them.
+Record design decisions per feature as the owner makes them; don't change decided behavior without asking.
+
+### Suspicious plushies (`gnomeblock`): done, confirmed in game 2026-10-22
+
+- **Items:** `Deco_Kweebec_Plush_Suspicious` and `Deco_Goblin_Plush_Suspicious` ("Suspicious … Plushie"). They inherit the vanilla plushies via `"Parent"`, so they look the same.
+- **Recipes:** both are crafted at the Builder's Workbench (`StructuralCrafting` / `Builders`, category `Decorative`). Each comes from 1 of its vanilla plushie; this is one-way. The goblin one can also be crafted from 1 Kweebec Plushie, via a standalone recipe file in `Server/Item/Recipes/LawOfMilk/`, since an item JSON holds only one `Recipe`. No natural world generation.
+- **Random screams:** they play the gnome scream (`SFX_LawOfMilk_Gnome_Scream`, `Common/Sounds/LawOfMilk/Gnome_Scream.ogg`, converted from an mp3 the owner supplied) at a random point within 6 blocks.
+  - **Mechanism:** a custom random tick procedure, `LawOfMilk_RandomSound`, with `Chance` 0.05.
+  - **Frequency:** every loaded block gets a random tick about every 8192 server ticks (30 TPS), so this is about one scream per plushie every 1.5 hours. Chance 1.0 (about every 4.6 min) is the fastest this mechanism allows.
+- **On use:** using a plushie plays the scream the same way, through the custom interaction `LawOfMilk_PlaySoundAround`. This replaces the vanilla squeak and makes testing easy.
+- **Rejected:** an echo variant of the sound. The owner didn't like it, so it was removed.
 
 ## Code conventions
 

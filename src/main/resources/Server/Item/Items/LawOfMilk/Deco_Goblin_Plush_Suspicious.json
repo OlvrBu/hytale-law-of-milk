@@ -1,0 +1,43 @@
+{
+  "Parent": "Deco_Goblin_Plush",
+  "TranslationProperties": {
+    "Name": "lawofmilk.items.Deco_Goblin_Plush_Suspicious.name"
+  },
+  "Icon": "Icons/ItemsGenerated/Deco_Goblin_Plush.png",
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Deco_Goblin_Plush",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "StructuralCrafting",
+        "Id": "Builders",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ]
+  },
+  "BlockType": {
+    "RandomTickProcedure": {
+      "Type": "LawOfMilk_RandomSound",
+      "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
+      "Chance": 0.05,
+      "OffsetRadius": 6.0
+    },
+    "Interactions": {
+      "Use": {
+        "Interactions": [
+          {
+            "Type": "LawOfMilk_PlaySoundAround",
+            "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
+            "OffsetRadius": 6.0
+          }
+        ]
+      }
+    }
+  }
+}
