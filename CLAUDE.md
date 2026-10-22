@@ -57,27 +57,27 @@ Record design decisions per feature as the owner makes them; don't change decide
 - **On use:** using a plushie plays the scream the same way, through the custom interaction `LawOfMilk_PlaySoundAround`. This replaces the vanilla squeak and makes testing easy.
 - **Rejected:** an echo variant of the sound. The owner didn't like it, so it was removed.
 
-### Super hatchet (`superhatchet`): in progress (performance testing)
+### Super apple (`superapple`): working, confirmed in game 2026-10-22
 
-- **Activation:** a vanilla `Tool_Hatchet_Iron`, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`. The vanilla hatchet item is not changed.
-- **Any material:** `DamageBlockEvent` raises each hit to at least 0.3 damage (the hatchet's wood power; every block has 1.0 health), so anything breaks in 4 hits.
-  - **Durability:** unchanged. The server deducts it after the event with no hook, so a world task restores it.
-- **Area:** on `BreakBlockEvent`, every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperHatchet.radius` is also removed; the blocks don't have to be connected. It runs as a world task after the original break.
+- **Activation:** hitting blocks with a vanilla `Plant_Fruit_Apple` in hand, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`. No vanilla item is changed; eating the apple (secondary) works as normal.
+  - **History:** it started as an Iron Hatchet trigger. The owner preferred the apple, and the hatchet was removed on 2026-10-22.
+- **Any material:** the apple isn't a tool, so hits use the server's bare-hand gather specs (`Server/Item/Unarmed/Gathering`). `DamageBlockEvent` raises each hit to at least 0.3 damage (every block has 1.0 health), so anything breaks in 4 hits. The client still predicts bare-hand damage, so its crack animation lags behind.
+- **Area:** on `BreakBlockEvent`, every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperApple.radius` is also removed; the blocks don't have to be connected. It runs as a world task after the original break.
   - **Mechanism (decided 2026-10-22):** the area blocks are set straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). They are not broken like mined blocks: no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated. The owner dropped the area-drops option for this.
   - **Defaults:** radius 5. The hit block itself breaks and drops normally.
-  - **Dev command:** `/lawofmilk hatchetradius <0-32>` sets the radius at runtime. It's operator-only and not saved.
+  - **Dev command:** `/lawofmilk appleradius <0-32>` sets the radius at runtime. It's operator-only and not saved.
   - **Timing:** every area removal logs its block count and time.
-- **Measured (2026-10-22) with the earlier per-block `performBlockBreak` (break events, sounds, particles):**
-  - radius 10, with drops: 2,863 stone blocks took 62 ms (about 2 server ticks);
-  - radius 32, no drops: about 70,000 stone blocks took 300–400 ms.
+- **Measured (2026-10-22, radius 32):**
+  - with `setBlock`: 74k stone blocks took 143 ms, 61k took 78 ms, 12.8k basalt took 25 ms;
+  - before, with per-block `performBlockBreak` (break events, sounds, particles): about 70k stone took 300–400 ms.
 
-  The client then showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first. The owner found the `setBlock` version good.
-- **Known limits:** the server only fires `DamageBlockEvent` if the held tool has a gather spec for the block's gather type, with enough quality. So these stay unminable with the super hatchet:
+  With the old version, the client showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first.
+- **Known limits:** the server only fires `DamageBlockEvent` if the bare-hand specs cover the block's gather type with enough quality. They have no quality, so these stay unminable:
   - quality-gated blocks: `Rock_Basalt`, limestone, shale cobble, stalactites, geysers, Mithril-in-stone, Adamantite-in-magma (13 vanilla blocks);
-  - gather types the hatchet has no spec for: GoblinMetal, SoftWoods, Pickaxe_Tier0 (9 blocks);
+  - gather types without a bare-hand spec: GoblinMetal, SoftWoods, Pickaxe_Tier0 (9 blocks);
   - Unbreakable blocks.
 
-  Fixing the first two needs an override of the vanilla hatchet JSON; the owner deferred that (2026-10-22).
+  The owner has an idea for fixing this (not yet discussed).
 
 ## Code conventions
 

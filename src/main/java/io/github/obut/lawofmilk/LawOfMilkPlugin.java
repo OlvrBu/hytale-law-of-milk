@@ -3,7 +3,7 @@ package io.github.obut.lawofmilk;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import io.github.obut.lawofmilk.gnomeblock.GnomeBlock;
-import io.github.obut.lawofmilk.superhatchet.SuperHatchet;
+import io.github.obut.lawofmilk.superapple.SuperApple;
 
 import javax.annotation.Nonnull;
 
@@ -17,7 +17,7 @@ public class LawOfMilkPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         GnomeBlock.register(this);
-        SuperHatchet.register(this);
+        SuperApple.register(this);
         getCommandRegistry().registerCommand(new LawOfMilkCommand());
     }
 }

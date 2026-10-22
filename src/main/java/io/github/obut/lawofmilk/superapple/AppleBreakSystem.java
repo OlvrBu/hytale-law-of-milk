@@ -1,4 +1,4 @@
-package io.github.obut.lawofmilk.superhatchet;
+package io.github.obut.lawofmilk.superapple;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -25,8 +25,8 @@ import javax.annotation.Nonnull;
 import java.util.logging.Level;
 
 /**
- * When a player breaks a block with the active super hatchet, also removes every block of the
- * same type within {@link SuperHatchet#radius} blocks (a sphere; the blocks don't have to be
+ * When a player breaks a block with the active super apple, also removes every block of the
+ * same type within {@link SuperApple#radius} blocks (a sphere; the blocks don't have to be
  * connected). Logs how many blocks it removed and how long that took.
  *
  * <p>The area's blocks are set straight to air with {@link BlockOperations#setBlock}, not broken
@@ -34,7 +34,7 @@ import java.util.logging.Level;
  * physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and
  * multi-block filler cells are still updated, and players receive the changes as usual.
  */
-class HatchetBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent> {
+class AppleBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 
     /** The world's build height; the server's own block-break helpers use the same bounds. */
     private static final int MIN_Y = 0;
@@ -43,7 +43,7 @@ class HatchetBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent>
 
     private final HytaleLogger logger;
 
-    HatchetBreakSystem(HytaleLogger logger) {
+    AppleBreakSystem(HytaleLogger logger) {
         super(BreakBlockEvent.class);
         this.logger = logger;
     }
@@ -52,12 +52,12 @@ class HatchetBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent>
     public void handle(int index, @Nonnull ArchetypeChunk<EntityStore> archetypeChunk, @Nonnull Store<EntityStore> store,
                        @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull BreakBlockEvent event) {
         Ref<EntityStore> player = archetypeChunk.getReferenceTo(index);
-        if (event.isCancelled() || !SuperHatchet.isActive(event.getItemInHand(), store, player)) {
+        if (event.isCancelled() || !SuperApple.isActive(event.getItemInHand(), store, player)) {
             return;
         }
         Vector3i center = new Vector3i(event.getTargetBlock());
         BlockType blockType = event.getBlockType();
-        int radius = SuperHatchet.radius;
+        int radius = SuperApple.radius;
         World world = store.getExternalData().getWorld();
         // This event fires before the target block is removed. Remove the rest in a separate task on
         // the world thread, after the server has finished breaking the target.
@@ -102,7 +102,7 @@ class HatchetBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent>
             }
         }
         long micros = (System.nanoTime() - start) / 1000;
-        logger.at(Level.INFO).log("Super hatchet: removed %d x %s within radius %d (%d positions checked) in %.1f ms",
+        logger.at(Level.INFO).log("Super apple: removed %d x %s within radius %d (%d positions checked) in %.1f ms",
                 removed, blockType.getId(), radius, checked, micros / 1000.0);
     }
 
