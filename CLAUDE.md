@@ -57,9 +57,11 @@ Record design decisions per feature as the owner makes them; don't change decide
 - **On use:** using a plushie plays the scream the same way, through the custom interaction `LawOfMilk_PlaySoundAround`. This replaces the vanilla squeak and makes testing easy.
 - **Rejected:** an echo variant of the sound. The owner didn't like it, so it was removed.
 
-### Super apple (`superapple`): working, confirmed in game 2026-10-22
+### Super apple (`superapple`): done, confirmed in game 2026-10-22
 
-- **Activation:** left-clicking a block with a vanilla `Plant_Fruit_Apple` in hand, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`.
+- **Activation:** left-clicking a block with a vanilla `Plant_Fruit_Apple` in hand, while the storage's **bottom-right slot** holds at least one `Food_Pie_Pumpkin` and the **slot to its left** at least one `Food_Pie_Apple`. Hotbar and backpack don't count.
+  - **Slot numbers:** storage is 9 columns × 4 rows (slots 0–35). The client shows it row by row from the top left, so bottom-right = last slot (35) and its left neighbor = 34; confirmed in game 2026-10-22.
+  - **Replaced condition:** exactly 3 `Ingredient_Crystal_Void` + 1 `Ingredient_Crystal_White` anywhere in the inventory (the earlier version).
 - **Effect:** the clicked block and every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperApple.radius` vanish at once; the blocks don't have to be connected. No damage, no cracks, no drops (owner's choice), and **any** block type works, including quality-gated (`Rock_Basalt`) and Unbreakable blocks (owner's choice: allow everything).
 - **Mechanism (decided 2026-10-22):**
   - **Apple override:** our asset pack overrides the vanilla `Plant_Fruit_Apple` (`Server/Item/Items/Plant/Fruit/Plant_Fruit_Apple.json`, same path as vanilla; confirmed in game that ours wins). It's a copy of the vanilla JSON plus `Interactions`:
