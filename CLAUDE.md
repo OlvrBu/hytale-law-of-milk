@@ -59,25 +59,26 @@ Record design decisions per feature as the owner makes them; don't change decide
 
 ### Super apple (`superapple`): working, confirmed in game 2026-10-22
 
-- **Activation:** hitting blocks with a vanilla `Plant_Fruit_Apple` in hand, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`. No vanilla item is changed; eating the apple (secondary) works as normal.
-  - **History:** it started as an Iron Hatchet trigger. The owner preferred the apple, and the hatchet was removed on 2026-10-22.
-- **Any material:** the apple isn't a tool, so hits use the server's bare-hand gather specs (`Server/Item/Unarmed/Gathering`). `DamageBlockEvent` raises each hit to at least 0.3 damage (every block has 1.0 health), so anything breaks in 4 hits. The client still predicts bare-hand damage, so its crack animation lags behind.
-- **Area:** on `BreakBlockEvent`, every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperApple.radius` is also removed; the blocks don't have to be connected. It runs as a world task after the original break.
-  - **Mechanism (decided 2026-10-22):** the area blocks are set straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). They are not broken like mined blocks: no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated. The owner dropped the area-drops option for this.
-  - **Defaults:** radius 5. The hit block itself breaks and drops normally.
-  - **Dev command:** `/lawofmilk appleradius <0-32>` sets the radius at runtime. It's operator-only and not saved.
-  - **Timing:** every area removal logs its block count and time.
-- **Measured (2026-10-22, radius 32):**
-  - with `setBlock`: 74k stone blocks took 143 ms, 61k took 78 ms, 12.8k basalt took 25 ms;
-  - before, with per-block `performBlockBreak` (break events, sounds, particles): about 70k stone took 300–400 ms.
+- **Activation:** left-clicking a block with a vanilla `Plant_Fruit_Apple` in hand, while hotbar + storage + backpack hold **exactly** 3 `Ingredient_Crystal_Void` and 1 `Ingredient_Crystal_White`.
+- **Effect:** the clicked block and every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperApple.radius` vanish at once; the blocks don't have to be connected. No damage, no cracks, no drops (owner's choice), and **any** block type works, including quality-gated (`Rock_Basalt`) and Unbreakable blocks (owner's choice: allow everything).
+- **Mechanism (decided 2026-10-22):**
+  - **Apple override:** our asset pack overrides the vanilla `Plant_Fruit_Apple` (`Server/Item/Items/Plant/Fruit/Plant_Fruit_Apple.json`, same path as vanilla; confirmed in game that ours wins). It's a copy of the vanilla JSON plus `Interactions`:
+    - `Primary`: the custom `LawOfMilk_SuperApple` interaction (`SuperAppleInteraction`, a `SimpleBlockInteraction` with `UseLatestTarget`) with `"Failed": "Block_Primary"`, so without the condition the vanilla punch chain runs. Cooldowns are copied from the vanilla root `Block_Primary`.
+    - `Secondary`: eating, stated explicitly.
 
-  With the old version, the client showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first.
-- **Known limits:** the server only fires `DamageBlockEvent` if the bare-hand specs cover the block's gather type with enough quality. They have no quality, so these stay unminable:
-  - quality-gated blocks: `Rock_Basalt`, limestone, shale cobble, stalactites, geysers, Mithril-in-stone, Adamantite-in-magma (13 vanilla blocks);
-  - gather types without a bare-hand spec: GoblinMetal, SoftWoods, Pickaxe_Tier0 (9 blocks);
-  - Unbreakable blocks.
+    **Re-sync this JSON with the vanilla apple after game updates.**
+  - **Why an interaction:** it runs before the server's gather/quality checks, which only happen inside the vanilla `BreakBlock` interaction.
+- **Removal:** `AreaRemover` sets the blocks straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). This means no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated.
+  - **Dev command:** `/lawofmilk appleradius <0-32>` sets the radius at runtime (default 5). It's operator-only and not saved.
+  - **Timing:** every removal logs its block count and time.
+- **History (2026-10-22):**
+  1. Iron Hatchet trigger with `DamageBlockEvent` (damage boost) + `BreakBlockEvent` (area), area via per-block `BlockHarvestUtils.performBlockBreak`.
+  2. Area switched to `setBlock`.
+  3. Apple trigger; the hatchet was removed.
+  4. The damage/break event hooks were replaced by the apple's own primary interaction, because quality-gated blocks never reach `DamageBlockEvent`.
 
-  The owner has an idea for fixing this (not yet discussed).
+  `PlayerMouseButtonEvent` was tried as a direct "hit" hook: it does **not** fire for normal clicks.
+- **Measured (radius 32, `setBlock`):** 74k stone blocks took 143 ms, 61k took 78 ms, 12.8k basalt took 25 ms. Per-block `performBlockBreak` took 300–400 ms for about 70k, and the client showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first.
 
 ## Code conventions
 

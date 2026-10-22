@@ -2,23 +2,24 @@ package io.github.obut.lawofmilk.superapple;
 
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.event.events.ecs.DamageBlockEvent;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nullable;
 
 /**
- * The super apple: hitting blocks with an apple in hand while the player carries exactly the right
- * crystals mines any material in 4 hits, and breaking a block also removes every block of the same
- * type within {@link #radius} blocks (without drops; the block actually hit drops normally).
+ * The super apple: left-clicking a block with an apple in hand, while the player carries exactly
+ * the right crystals, instantly removes that block and every block of the same type within
+ * {@link #radius} blocks (any block type, no drops).
  *
- * <p>The apple isn't a tool, so hits with it use the server's bare-hand gather specs
- * (Server/Item/Unarmed/Gathering). Those cover nearly every gather type with a small power, so
- * {@link DamageBlockEvent} fires and the plugin can raise the damage.
+ * <p>Our asset pack overrides the vanilla {@code Plant_Fruit_Apple} item to make
+ * {@link SuperAppleInteraction} its primary interaction. Keep that JSON in sync with the vanilla
+ * apple when the game updates.
  */
 public final class SuperApple {
 
@@ -28,19 +29,25 @@ public final class SuperApple {
     static final String WHITE_CRYSTAL_ID = "Ingredient_Crystal_White";
     static final int WHITE_CRYSTALS = 1;
 
-    /** Damage per hit on any material; blocks have 1.0 health, so 4 hits break anything. */
-    static final float DAMAGE = 0.3f;
-
     static final int MAX_RADIUS = 32;
     /** Area radius in blocks. Changed at runtime by {@code /lawofmilk appleradius}; not saved. */
     static volatile int radius = 5;
 
+    // The interaction is created by the server from JSON, so it can't be handed the logger.
+    private static HytaleLogger logger;
+
     private SuperApple() {
     }
 
+    /** Must run in the plugin's setup(), before the server loads the apple that refers to the interaction. */
     public static void register(JavaPlugin plugin) {
-        plugin.getEntityStoreRegistry().registerSystem(new AppleDamageSystem());
-        plugin.getEntityStoreRegistry().registerSystem(new AppleBreakSystem(plugin.getLogger()));
+        logger = plugin.getLogger();
+        plugin.getCodecRegistry(Interaction.CODEC)
+                .register(SuperAppleInteraction.TYPE, SuperAppleInteraction.class, SuperAppleInteraction.CODEC);
+    }
+
+    static HytaleLogger logger() {
+        return logger;
     }
 
     /**

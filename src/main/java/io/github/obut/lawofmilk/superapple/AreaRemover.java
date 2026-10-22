@@ -1,15 +1,9 @@
 package io.github.obut.lawofmilk.superapple;
 
-import com.hypixel.hytale.component.ArchetypeChunk;
-import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.query.Query;
-import com.hypixel.hytale.component.system.EntityEventSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SetBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockOperations;
@@ -18,53 +12,31 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockComponen
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
 
-import javax.annotation.Nonnull;
 import java.util.logging.Level;
 
 /**
- * When a player breaks a block with the active super apple, also removes every block of the
- * same type within {@link SuperApple#radius} blocks (a sphere; the blocks don't have to be
- * connected). Logs how many blocks it removed and how long that took.
+ * Removes every block of one type within a sphere (the blocks don't have to be connected) and
+ * logs how many it removed and how long that took.
  *
- * <p>The area's blocks are set straight to air with {@link BlockOperations#setBlock}, not broken
- * like mined blocks: no BreakBlockEvent (other plugins can't veto it), no drops, sounds, particles,
+ * <p>The blocks are set straight to air with {@link BlockOperations#setBlock}, not broken like
+ * mined blocks: no BreakBlockEvent (other plugins can't veto it), no drops, sounds, particles,
  * physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and
  * multi-block filler cells are still updated, and players receive the changes as usual.
  */
-class AppleBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent> {
+final class AreaRemover {
 
     /** The world's build height; the server's own block-break helpers use the same bounds. */
     private static final int MIN_Y = 0;
     private static final int MAX_Y = 320;
     private static final int SETTINGS = SetBlockSettings.NO_SEND_PARTICLES;
 
-    private final HytaleLogger logger;
-
-    AppleBreakSystem(HytaleLogger logger) {
-        super(BreakBlockEvent.class);
-        this.logger = logger;
+    private AreaRemover() {
     }
 
-    @Override
-    public void handle(int index, @Nonnull ArchetypeChunk<EntityStore> archetypeChunk, @Nonnull Store<EntityStore> store,
-                       @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull BreakBlockEvent event) {
-        Ref<EntityStore> player = archetypeChunk.getReferenceTo(index);
-        if (event.isCancelled() || !SuperApple.isActive(event.getItemInHand(), store, player)) {
-            return;
-        }
-        Vector3i center = new Vector3i(event.getTargetBlock());
-        BlockType blockType = event.getBlockType();
-        int radius = SuperApple.radius;
-        World world = store.getExternalData().getWorld();
-        // This event fires before the target block is removed. Remove the rest in a separate task on
-        // the world thread, after the server has finished breaking the target.
-        world.execute(() -> clearArea(world, center, blockType, radius));
-    }
-
-    private void clearArea(World world, Vector3i center, BlockType blockType, int radius) {
+    /** Removes every block of {@code blockType} within {@code radius} blocks of {@code center}, center included. Runs on the world thread. */
+    static void removeArea(World world, Vector3i center, BlockType blockType, int radius, HytaleLogger logger) {
         long start = System.nanoTime();
         int blockId = BlockType.getAssetMap().getIndex(blockType.getId());
         ChunkStore chunks = world.getChunkStore();
@@ -149,10 +121,5 @@ class AppleBreakSystem extends EntityEventSystem<EntityStore, BreakBlockEvent> {
             loaded = heightmap != null;
             return loaded;
         }
-    }
-
-    @Override
-    public Query<EntityStore> getQuery() {
-        return PlayerRef.getComponentType();
     }
 }
