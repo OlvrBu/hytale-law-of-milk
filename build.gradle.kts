@@ -35,6 +35,13 @@ hytaleTools {
     injectServerJavadocsIntoSources = property("injectServerJavadocsIntoSources").toString().toBoolean()
     generateAssetsBinary = property("generateAssetsBinary").toString().toBoolean()
     // hytaleHomeOverride = property("hytaleHomeOverride").toString()
+
+    // Dev server only (runServer): "--allow-op" enables /op self so you can grant yourself admin.
+    // Never use this flag on a public server.
+    serverArgs.addAll("--allow-op")
+    // The plugin's default -Xms4G -Xmx4G got the dev server OOM-killed in the 7.6 GB sandbox while
+    // Gradle was also running. 2.5 GB is plenty for a small dev world; later -X flags win.
+    serverJvmArgs.addAll("-Xms1G", "-Xmx2560m")
 }
 
 repositories {
@@ -42,7 +49,7 @@ repositories {
 }
 
 tasks.named<Jar>("jar") {
-    archiveBaseName.set(project.property("mod_name").toString())
+    archiveBaseName.set(project.property("mod_id").toString())
     archiveVersion.set(project.property("version").toString())
 }
 

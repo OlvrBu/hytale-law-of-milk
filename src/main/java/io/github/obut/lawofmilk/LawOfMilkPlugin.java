@@ -1,20 +1,20 @@
-package dev.hytalemodding;
+package io.github.obut.lawofmilk;
 
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.util.Config;
-import dev.hytalemodding.commands.ExampleCommand;
-import dev.hytalemodding.config.ExampleConfig;
-import dev.hytalemodding.events.ExampleEvent;
+import io.github.obut.lawofmilk.commands.ExampleCommand;
+import io.github.obut.lawofmilk.config.ExampleConfig;
+import io.github.obut.lawofmilk.events.ExampleEvent;
 
 import javax.annotation.Nonnull;
 
-public class ExamplePlugin extends JavaPlugin {
+public class LawOfMilkPlugin extends JavaPlugin {
 
     private static Config<ExampleConfig> config = null;
 
-    public ExamplePlugin(@Nonnull JavaPluginInit init) {
+    public LawOfMilkPlugin(@Nonnull JavaPluginInit init) {
         super(init);
         config = this.withConfig("example_config", ExampleConfig.CODEC);
     }

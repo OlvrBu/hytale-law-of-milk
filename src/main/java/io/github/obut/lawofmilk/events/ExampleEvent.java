@@ -1,4 +1,4 @@
-package dev.hytalemodding.events;
+package io.github.obut.lawofmilk.events;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
