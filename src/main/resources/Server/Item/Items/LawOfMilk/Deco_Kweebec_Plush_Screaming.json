@@ -1,0 +1,31 @@
+{
+  "Parent": "Deco_Kweebec_Plush",
+  "TranslationProperties": {
+    "Name": "lawofmilk.items.Deco_Kweebec_Plush_Screaming.name"
+  },
+  "Icon": "Icons/ItemsGenerated/Deco_Kweebec_Plush.png",
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Deco_Kweebec_Plush",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "StructuralCrafting",
+        "Id": "Builders",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ]
+  },
+  "BlockType": {
+    "RandomTickProcedure": {
+      "Type": "LawOfMilk_RandomSound",
+      "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
+      "Chance": 1.0
+    }
+  }
+}

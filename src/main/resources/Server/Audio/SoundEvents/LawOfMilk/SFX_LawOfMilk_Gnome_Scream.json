@@ -1,0 +1,13 @@
+{
+  "Layers": [
+    {
+      "Files": [
+        "Sounds/LawOfMilk/Gnome_Scream.ogg"
+      ],
+      "Volume": 0
+    }
+  ],
+  "Volume": 0,
+  "PreventSoundInterruption": true,
+  "Parent": "SFX_Attn_Moderate"
+}
