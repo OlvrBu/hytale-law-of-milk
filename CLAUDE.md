@@ -99,6 +99,15 @@ Record design decisions per feature as the owner makes them; don't change decide
   - **Planned approach:** a player ticking system, throttled to every few seconds, that reuses `JungleCandle.isInOffhand`. It picks a few random columns within a radius and finds each top block: `Soil_Dirt` with air above becomes `Soil_Grass`, `Soil_Grass` with air above gets a random plant, and anything else is skipped. Blocks are set with `BlockOperations.setBlock` (see `superapple/AreaRemover`), deferred with `world.execute(...)`, since the candle check runs in entity systems and blocks belong to the chunk store (verify this when building it). No asset changes needed.
   - **Open questions for the owner:** which plants (jungle-themed, generic lush, or matching the biome), radius and rate, whether dirt becomes grass too, and whether it grows only while the player walks.
 
+### Void Scythe recipe (assets only, no subpackage): done, confirmed in game 2026-10-23
+
+- **Idea (owner, 2026-10-23):** make the unused vanilla `Weapon_Battleaxe_Scythe_Void` ("Void Scythe") craftable only inside the Guttering Hollows fragment. Players bring an Arcanist's Workbench, find a Veilbound Key and defend the crafter during a long craft.
+- **Recipe (decided 2026-10-23):** `Server/Item/Recipes/LawOfMilk/Weapon_Battleaxe_Scythe_Void.json`: 2 `Coffer_Key` (raised from 1 on 2026-10-23 after the in-game test; the change itself wasn't retested) + 10 `Ingredient_Voidheart` + 2 `Ingredient_Voidtaken_Grizzly_Hide` + 10 `Ingredient_Bar_Adamantite` at the Arcanist's Workbench (`Crafting` / `Arcanebench`, category `Arcane_Misc`), `TimeSeconds` exactly 30.
+- **Scythe stays vanilla (decided 2026-10-23):** no override; it's `Quality: Common`, `ItemLevel: 30`, 112/224 physical. A standalone recipe file means nothing to re-sync.
+- **Why it only works in the fragment:** `Coffer_Key` is listed in `"EphemeralItems"` of `Server/PortalTypes/Goblin_Breach.json` (the Guttering Hollows), so it's removed when the player leaves. It drops from `Void_Spawn_Entombed` and sits in goblin coffer prefabs. The fragment has `TimeLimitSeconds: 600` and Void invasion stages from 120 s.
+- **Craft behavior (from `builtin/crafting/component/CraftingManager`, `window/BenchWindow`):** inputs are taken when the craft starts; progress only runs while the bench window is open; closing it (or the player entity being removed) cancels the craft and refunds the inputs, including the key.
+- **Confirmed in game (2026-10-23):** the owner crafted the scythe inside the Guttering Hollows, so a bench can be placed there (configs don't override `AllowBlockPlacement`, default true). Not reported: whether taking damage closes the bench window on the client.
+
 ## Code conventions
 
 - One responsibility per class.

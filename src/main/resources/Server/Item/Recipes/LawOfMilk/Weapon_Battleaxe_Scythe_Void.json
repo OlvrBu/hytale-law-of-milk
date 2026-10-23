@@ -1,0 +1,40 @@
+{
+  "TimeSeconds": 30,
+  "Input": [
+    {
+      "ItemId": "Coffer_Key",
+      "Quantity": 2
+    },
+    {
+      "ItemId": "Ingredient_Voidheart",
+      "Quantity": 10
+    },
+    {
+      "ItemId": "Ingredient_Voidtaken_Grizzly_Hide",
+      "Quantity": 2
+    },
+    {
+      "ItemId": "Ingredient_Bar_Adamantite",
+      "Quantity": 10
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Weapon_Battleaxe_Scythe_Void",
+    "Quantity": 1
+  },
+  "Output": [
+    {
+      "ItemId": "Weapon_Battleaxe_Scythe_Void",
+      "Quantity": 1
+    }
+  ],
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Arcanebench",
+      "Categories": [
+        "Arcane_Misc"
+      ]
+    }
+  ]
+}
