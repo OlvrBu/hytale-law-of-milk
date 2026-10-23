@@ -82,6 +82,23 @@ Record design decisions per feature as the owner makes them; don't change decide
   `PlayerMouseButtonEvent` was tried as a direct "hit" hook: it does **not** fire for normal clicks.
 - **Measured (radius 32, `setBlock`):** 74k stone blocks took 143 ms, 61k took 78 ms, 12.8k basalt took 25 ms. Per-block `performBlockBreak` took 300–400 ms for about 70k, and the client showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first.
 
+### Jungle candle (`junglecandle`): done, confirmed in game 2026-10-23
+
+- **Trigger (decided 2026-10-23):** the vanilla `Furniture_Jungle_Candle` (already `"Utility": { "Usable": true }`) in **any** of the 4 off-hand slots, active or not, whatever is in the main hand. The vanilla item is not changed or overridden.
+- **Effect (decided 2026-10-23):** stamina costs reduced by 50% (`JungleCandle.STAMINA_REDUCTION`). Hidden: no icon, tooltip or status effect.
+- **Mechanism:** `StaminaSaverSystem`, a player `EntityTickingSystem`, remembers each player's stamina after its last tick and gives back half of any drop since then (`StaminaRefund`, unit-tested). It's done this way because stamina is spent in many unrelated places (sprint/glide drain in `Stamina.json`, `ChangeStat`/`ChangeStatWithModifier` in about 140 weapon and dodge interaction assets, shield blocking in `DamageSystems.DamageStamina`), none of which an off-hand item can scale. The only vanilla cost modifier, armor `InteractionModifiers`, is armor-only and only works through `ChangeStatWithModifier`.
+- **Known limits:**
+  - The "enough stamina?" checks (`StatsConditionWithModifier` `Costs`) still need the full cost.
+  - A cost that crosses 0 still triggers the `Stamina.json` `MinValueEffects` (regen delay, `Stamina_Broken` check) before the refund.
+  - Only the net change per tick is seen, so regen in the same tick hides a tiny part of a cost.
+- **Logging:** `[JungleCandle]` info lines when the candle starts and stops counting for a player.
+- **Confirmed in game (2026-10-23):** half stamina use while sprinting, also from an inactive off-hand slot with a weapon in the main hand; normal again once the candle is removed. No visible stamina bar flicker from the server-side refund, even with charged weapon abilities.
+- **Parked idea (2026-10-23): grass and flowers grow around a candle holder.** The owner scrapped it for now; nothing is implemented. Research so far (0.7.2):
+  - **Vanilla:** wild grass, ferns and flowers (`Plant_Grass_*`, `Plant_Fern_*`, 82 `Plant_Flower_*`) are placed by world generation only. They have no random tick and no growth or farming data, so broken ones never come back. They need soil below (`Support.Down: Type=Soil`; flowers also allow `SubType=Planter`).
+  - **Only the ground block spreads:** `Soil_Grass` (and its 13 variants) has `RandomTickProcedure` `SpreadTo` (`builtin/randomtick/procedures/SpreadToProcedure.java`). It turns `Spreadable=Grass` blocks (`Soil_Dirt`) in the 8 directions, ±1 Y, into grass if the light above is high enough. It reverts to `RevertBlock` `Soil_Dirt` under a solid full cube or a disallowed fluid. Leaves also use `SpreadTo`. A third procedure, `PlaceBlock` (`Placements`, `Offset`, `RequireEmptyTarget`), is only used by a test block in vanilla.
+  - **Planned approach:** a player ticking system, throttled to every few seconds, that reuses `JungleCandle.isInOffhand`. It picks a few random columns within a radius and finds each top block: `Soil_Dirt` with air above becomes `Soil_Grass`, `Soil_Grass` with air above gets a random plant, and anything else is skipped. Blocks are set with `BlockOperations.setBlock` (see `superapple/AreaRemover`), deferred with `world.execute(...)`, since the candle check runs in entity systems and blocks belong to the chunk store (verify this when building it). No asset changes needed.
+  - **Open questions for the owner:** which plants (jungle-themed, generic lush, or matching the biome), radius and rate, whether dirt becomes grass too, and whether it grows only while the player walks.
+
 ## Code conventions
 
 - One responsibility per class.

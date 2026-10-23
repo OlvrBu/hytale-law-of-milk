@@ -53,6 +53,21 @@ tasks.named<Jar>("jar") {
     archiveVersion.set(project.property("version").toString())
 }
 
+// Unit tests run without a server; give them the compile-only server jar too.
+configurations.testImplementation {
+    extendsFrom(configurations.compileOnly.get())
+}
+
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
 // Uncomment if you are using IntelliJ.
 // idea {
 //     module {
