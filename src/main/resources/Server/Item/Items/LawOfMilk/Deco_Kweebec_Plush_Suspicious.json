@@ -34,7 +34,14 @@
           {
             "Type": "LawOfMilk_PlaySoundAround",
             "SoundEventId": "SFX_LawOfMilk_Gnome_Scream",
-            "OffsetRadius": 6.0
+            "Chance": 0.01,
+            "OffsetRadius": 0.0,
+            "Failed": {
+              "Type": "Simple",
+              "Effects": {
+                "WorldSoundEventId": "SFX_Plushie_Interact"
+              }
+            }
           }
         ]
       }

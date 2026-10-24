@@ -47,14 +47,16 @@ The Hytale API is young, changes between Early Access updates, and is not well r
 
 Record design decisions per feature as the owner makes them; don't change decided behavior without asking.
 
-### Suspicious plushies (`gnomeblock`): done, confirmed in game 2026-10-22
+### Suspicious plushies (`gnomeblock`): done, confirmed in game 2026-10-22, on-use change confirmed 2026-10-24
 
 - **Items:** `Deco_Kweebec_Plush_Suspicious` and `Deco_Goblin_Plush_Suspicious` ("Suspicious … Plushie"). They inherit the vanilla plushies via `"Parent"`, so they look the same.
 - **Recipes:** both are crafted at the Builder's Workbench (`StructuralCrafting` / `Builders`, category `Decorative`). Each comes from 1 of its vanilla plushie; this is one-way. The goblin one can also be crafted from 1 Kweebec Plushie, via a standalone recipe file in `Server/Item/Recipes/LawOfMilk/`, since an item JSON holds only one `Recipe`. No natural world generation.
 - **Random screams:** they play the gnome scream (`SFX_LawOfMilk_Gnome_Scream`, `Common/Sounds/LawOfMilk/Gnome_Scream.ogg`, converted from an mp3 the owner supplied) at a random point within 6 blocks.
   - **Mechanism:** a custom random tick procedure, `LawOfMilk_RandomSound`, with `Chance` 0.05.
   - **Frequency:** every loaded block gets a random tick about every 8192 server ticks (30 TPS), so this is about one scream per plushie every 1.5 hours. Chance 1.0 (about every 4.6 min) is the fastest this mechanism allows.
-- **On use:** using a plushie plays the scream the same way, through the custom interaction `LawOfMilk_PlaySoundAround`. This replaces the vanilla squeak and makes testing easy.
+- **On use (decided 2026-10-24):** using a plushie plays the vanilla squeak (`SFX_Plushie_Interact`), except for a 1% chance to play the gnome scream (the owner also calls it the "woo") at the plushie itself instead.
+  - **Mechanism:** the custom interaction `LawOfMilk_PlaySoundAround` with `"Chance": 0.01` and `"OffsetRadius": 0`. It's rolled on the server; on a miss the interaction fails and its `"Failed"` branch is the vanilla `Simple` interaction with the squeak (same fallback pattern as the super apple).
+  - **Replaced behavior:** every use played the scream at a random point within 6 blocks (2026-10-22).
 - **Rejected:** an echo variant of the sound. The owner didn't like it, so it was removed.
 
 ### Super apple (`superapple`): done, confirmed in game 2026-10-22
