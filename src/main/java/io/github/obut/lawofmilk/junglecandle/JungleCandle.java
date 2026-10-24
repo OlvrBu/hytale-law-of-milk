@@ -9,20 +9,29 @@ import javax.annotation.Nullable;
 
 /**
  * The jungle candle: while the vanilla {@code Furniture_Jungle_Candle} sits in any off-hand slot
- * (active or not), stamina costs are cut by {@link #STAMINA_REDUCTION}. Nothing shows this in game.
- * The vanilla item is unchanged.
+ * (active or not), stamina costs are cut by {@link #STAMINA_REDUCTION}, health slowly regenerates
+ * and fall damage is cut by {@link #FALL_DAMAGE_REDUCTION}. Nothing shows this in game. The vanilla
+ * item is unchanged.
  */
 public final class JungleCandle {
 
     static final String ITEM_ID = "Furniture_Jungle_Candle";
     /** Share of every stamina cost that is given back. */
     static final float STAMINA_REDUCTION = 0.5f;
+    /** Health healed every REGEN_INTERVAL seconds. */
+    static final float REGEN_AMOUNT = 1.0f;
+    static final float REGEN_INTERVAL = 5.0f;
+    /** Share of fall damage that is taken away. */
+    static final float FALL_DAMAGE_REDUCTION = 0.5f;
 
     private JungleCandle() {
     }
 
     public static void register(JavaPlugin plugin) {
         plugin.getEntityStoreRegistry().registerSystem(new StaminaSaverSystem(plugin.getLogger()));
+        plugin.getEntityStoreRegistry().registerSystem(new HealthRegenSystem());
+        // Needs the damage module set up first (manifest dependency Hytale:DamageModule).
+        plugin.getEntityStoreRegistry().registerSystem(new FallDamageReductionSystem());
     }
 
     /** Whether any of the off-hand (utility) slots holds the candle, not only the active one. */

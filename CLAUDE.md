@@ -86,10 +86,13 @@ Record design decisions per feature as the owner makes them; don't change decide
   `PlayerMouseButtonEvent` was tried as a direct "hit" hook: it does **not** fire for normal clicks.
 - **Measured (radius 32, `setBlock`):** 74k stone blocks took 143 ms, 61k took 78 ms, 12.8k basalt took 25 ms. Per-block `performBlockBreak` took 300–400 ms for about 70k, and the client showed the breaks in shells moving outward from the player, because it applies chunk section updates nearest-first.
 
-### Jungle candle (`junglecandle`): done, confirmed in game 2026-10-23
+### Jungle candle (`junglecandle`): done, confirmed in game 2026-10-23, health regen and fall damage reduction confirmed 2026-10-24
 
 - **Trigger (decided 2026-10-23):** the vanilla `Furniture_Jungle_Candle` (already `"Utility": { "Usable": true }`) in **any** of the 4 off-hand slots, active or not, whatever is in the main hand. The vanilla item is not changed or overridden.
 - **Effect (decided 2026-10-23):** stamina costs reduced by 50% (`JungleCandle.STAMINA_REDUCTION`). Hidden: no icon, tooltip or status effect.
+- **More hidden effects (decided 2026-10-24, confirmed in game the same day; the owner likes the regen rate), same trigger:**
+  - **Health regen:** +1 HP every 5 s (`REGEN_AMOUNT`, `REGEN_INTERVAL`) via `HealthRegenSystem`, a player `EntityTickingSystem` with a per-player `RegenTimer` (unit-tested). It skips dead players (`DeathComponent`, same check as vanilla stat regen) and players at full health; the timer restarts at full health, so the first heal comes 5 s after a hit. Not paused by taking damage.
+  - **Fall damage −50%** (`FALL_DAMAGE_REDUCTION`) via `FallDamageReductionSystem`, a `DamageEventSystem` in the damage module's filter group (like vanilla `ArmorDamageReduction`). It scales `Damage` events whose cause is `Fall`, which `DamageSystems` creates for players on landing. Needs the manifest dependency `Hytale:DamageModule` so the filter group exists when our `setup()` runs.
 - **Mechanism:** `StaminaSaverSystem`, a player `EntityTickingSystem`, remembers each player's stamina after its last tick and gives back half of any drop since then (`StaminaRefund`, unit-tested). It's done this way because stamina is spent in many unrelated places (sprint/glide drain in `Stamina.json`, `ChangeStat`/`ChangeStatWithModifier` in about 140 weapon and dodge interaction assets, shield blocking in `DamageSystems.DamageStamina`), none of which an off-hand item can scale. The only vanilla cost modifier, armor `InteractionModifiers`, is armor-only and only works through `ChangeStatWithModifier`.
 - **Known limits:**
   - The "enough stamina?" checks (`StatsConditionWithModifier` `Costs`) still need the full cost.

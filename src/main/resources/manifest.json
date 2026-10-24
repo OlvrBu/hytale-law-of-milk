@@ -12,7 +12,8 @@
     "DisabledByDefault": false,
     "IncludesAssetPack": true,
     "Dependencies": {
-        "Hytale:AssetModule": "*"
+        "Hytale:AssetModule": "*",
+        "Hytale:DamageModule": "*"
     },
     "OptionalDependencies": {
         
