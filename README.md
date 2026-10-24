@@ -18,6 +18,8 @@ Project metadata (IDs, version, author, server version range) lives in `gradle.p
 manifest is generated from it (`./gradlew updatePluginManifest`). Project notes and design decisions
 are in [`CLAUDE.md`](CLAUDE.md).
 
+Changes per version are in [`CHANGELOG.md`](CHANGELOG.md).
+
 ## Credits
 
 Built on the [HytaleModding plugin template](https://github.com/HytaleModding/plugin-template) and

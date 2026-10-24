@@ -115,6 +115,10 @@ Record design decisions per feature as the owner makes them; don't change decide
 - **Craft behavior (from `builtin/crafting/component/CraftingManager`, `window/BenchWindow`):** inputs are taken when the craft starts; progress only runs while the bench window is open; closing it (or the player entity being removed) cancels the craft and refunds the inputs, including the key.
 - **Confirmed in game (2026-10-23):** the owner crafted the scythe inside the Guttering Hollows, so a bench can be placed there (configs don't override `AllowBlockPlacement`, default true). Not reported: whether taking damage closes the bench window on the client.
 
+## Versions
+
+Version in `gradle.properties` (`./gradlew updatePluginManifest` after changing it). Every release gets a short, player-facing entry in `CHANGELOG.md` (decided 2026-10-24). 0.1.0 is the state of commit `cec8ca7` (2026-10-23); the owner then jumped to 1.1.0 on 2026-10-24.
+
 ## Code conventions
 
 - One responsibility per class.
