@@ -15,9 +15,12 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Random tick procedure that plays a sound around the block with a given chance per random tick.
- * Used in a block type's JSON as
+ * Random tick procedure that plays a sound with a given chance per random tick. Used in a block
+ * type's JSON as
  * {@code "RandomTickProcedure": {"Type": "LawOfMilk_RandomSound", "SoundEventId": "...", "Chance": 0.05, "OffsetRadius": 6}}.
+ *
+ * <p>The sound plays on the ground around a random player near the block, preferably out of their
+ * view (see {@link ScreamSpot}). Without a player nearby it plays within OffsetRadius of the block.
  *
  * <p>Each loaded block gets on average one random tick every 8192 server ticks (about 4.6 minutes
  * at 30 TPS; see the built-in RandomTickSystem), so the average time between sounds is roughly
@@ -58,7 +61,7 @@ public class RandomSoundProcedure implements RandomTickProcedure {
 
     private String soundEventId;
     private double chance = 1.0;
-    /** The sound plays at a uniformly random point within this many blocks of the block's center. */
+    /** Without a player nearby, the sound plays at a uniformly random point within this many blocks of the block's center. */
     private double offsetRadius = 0.0;
 
     @Override
@@ -67,6 +70,6 @@ public class RandomSoundProcedure implements RandomTickProcedure {
         if (ThreadLocalRandom.current().nextDouble() >= chance) {
             return;
         }
-        ScreamSound.playAround(store.getExternalData().getWorld(), soundEventId, worldX, worldY, worldZ, offsetRadius);
+        ScreamSound.playNearPlayer(store.getExternalData().getWorld(), soundEventId, worldX, worldY, worldZ, offsetRadius);
     }
 }
