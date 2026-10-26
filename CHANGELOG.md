@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 (2026-10-26)
+
+- **Void Capture Crate:** a new capture crate for hostile creatures, bosses included. A creature can
+  only be caught once it's below 25% health, and the crate breaks when you release it. It's crafted
+  at the Arcanist's Workbench from 1 Veilbound Key, 10 Azure Logs, 10 Greater Essence of Life and
+  2 Voidtaken Grizzly Hides, so it can only be made inside the Guttering Hollows.
+
 ## 1.1.0 (2026-10-24)
 
 - **Suspicious plushies:** using one now plays the normal plushie squeak, with a 1% chance of the
