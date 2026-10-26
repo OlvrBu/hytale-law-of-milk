@@ -1,0 +1,6 @@
+{
+  "$Comment": "Roles the hostile capture crate may consider. Matches every role on purpose: LawOfMilk_UseHostileCrate itself only accepts NPCs whose DefaultPlayerAttitude is Hostile. Add ExcludeRoles here to make specific creatures uncatchable.",
+  "IncludeRoles": [
+    "*"
+  ]
+}

@@ -1,2 +1,7 @@
 items.Deco_Kweebec_Plush_Suspicious.name = Suspicious Kweebec Plushie
 items.Deco_Goblin_Plush_Suspicious.name = Suspicious Goblin Plushie
+items.Tool_Capture_Crate_Hostile.name = Void Capture Crate
+items.Tool_Capture_Crate_Hostile.nameFull = Void Capture Crate ({npc})
+items.Tool_Capture_Crate_Hostile.description = Captures a hostile creature once it is badly wounded. Breaks when the creature is released.
+hostileCrate.notHostile = Only hostile creatures fit in this crate.
+hostileCrate.tooHealthy = It's too strong. Wound it below {percent}% health first.

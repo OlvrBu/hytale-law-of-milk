@@ -1,0 +1,73 @@
+{
+  "Parent": "Tool_Capture_Crate",
+  "TranslationProperties": {
+    "Name": "lawofmilk.items.Tool_Capture_Crate_Hostile.name",
+    "Description": "lawofmilk.items.Tool_Capture_Crate_Hostile.description"
+  },
+  "Quality": "Epic",
+  "ItemLevel": 30,
+  "Recipe": {
+    "TimeSeconds": 10,
+    "Input": [
+      {
+        "ItemId": "Coffer_Key",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Wood_Azure_Trunk",
+        "Quantity": 10
+      },
+      {
+        "ItemId": "Ingredient_Life_Essence_Concentrated",
+        "Quantity": 10
+      },
+      {
+        "ItemId": "Ingredient_Voidtaken_Grizzly_Hide",
+        "Quantity": 2
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Arcanebench",
+        "Categories": [
+          "Arcane_Misc"
+        ]
+      }
+    ]
+  },
+  "Interactions": {
+    "Primary": {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "Effects": {
+            "ItemAnimationId": "Interact"
+          },
+          "RunTime": 0.05,
+          "Next": {
+            "Type": "LawOfMilk_UseHostileCrate",
+            "AcceptedNpcGroups": [
+              "LawOfMilk_Hostile_Crate"
+            ],
+            "MaxHealthFraction": 0.25,
+            "FullIcon": "Icons/ItemsGenerated/Tool_Capture_Crate_Full.png",
+            "Failed": {
+              "Type": "Simple",
+              "Effects": {
+                "LocalSoundEventId": "SFX_Capture_Crate_Capture_Fail_Local"
+              }
+            },
+            "Next": {
+              "Type": "Simple",
+              "Effects": {
+                "LocalSoundEventId": "SFX_Capture_Crate_Capture_Succeed_Local",
+                "WorldSoundEventId": "SFX_Capture_Crate_Capture_Succeed"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
