@@ -63,7 +63,7 @@ public class ChestGrowthSystem extends EntityTickingSystem<ChunkStore> {
                 && isUnrotated(store, x, y - 2, z, GrowingChest.BASE_ID);
         if (!active) {
             if (timers.remove(ref) != null) {
-                logger.atInfo().log("[GrowingChest] Chest at %d %d %d stopped growing", x, y, z);
+                logger.atFine().log("[GrowingChest] Chest at %d %d %d stopped growing", x, y, z);
             }
             return;
         }
@@ -71,7 +71,7 @@ public class ChestGrowthSystem extends EntityTickingSystem<ChunkStore> {
         if (timer == null) {
             timer = new GrowthTimer();
             timers.put(ref, timer);
-            logger.atInfo().log("[GrowingChest] Chest at %d %d %d is growing", x, y, z);
+            logger.atFine().log("[GrowingChest] Chest at %d %d %d is growing", x, y, z);
         }
         int steps = timer.advance(dt, GrowingChest.INTERVAL);
         ItemContainer items = archetypeChunk.getComponent(index, ItemContainerBlock.getComponentType()).getItemContainer();

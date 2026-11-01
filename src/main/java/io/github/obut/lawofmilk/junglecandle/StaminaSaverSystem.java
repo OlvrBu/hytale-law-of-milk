@@ -45,7 +45,7 @@ public class StaminaSaverSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> ref = archetypeChunk.getReferenceTo(index);
         if (!JungleCandle.isInOffhand(archetypeChunk.getComponent(index, InventoryComponent.Utility.getComponentType()))) {
             if (lastStamina.remove(ref) != null) {
-                logger.atInfo().log("[JungleCandle] Candle left the off-hand of %s", playerName(archetypeChunk, index));
+                logger.atFine().log("[JungleCandle] Candle left the off-hand of %s", playerName(archetypeChunk, index));
             }
             return;
         }
@@ -58,7 +58,7 @@ public class StaminaSaverSystem extends EntityTickingSystem<EntityStore> {
         float current = stamina.get();
         Float previous = lastStamina.get(ref);
         if (previous == null) {
-            logger.atInfo().log("[JungleCandle] Candle in the off-hand of %s, saving stamina", playerName(archetypeChunk, index));
+            logger.atFine().log("[JungleCandle] Candle in the off-hand of %s, saving stamina", playerName(archetypeChunk, index));
         } else {
             float refund = StaminaRefund.amount(previous, current, JungleCandle.STAMINA_REDUCTION);
             if (refund > 0) {

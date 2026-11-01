@@ -14,8 +14,6 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.joml.Vector3i;
 
-import java.util.logging.Level;
-
 /**
  * Removes every block of one type within a {@link Cone} (the blocks don't have to be connected) and
  * logs how many it removed and how long that took.
@@ -79,7 +77,7 @@ final class AreaRemover {
             }
         }
         long micros = (System.nanoTime() - start) / 1000;
-        logger.at(Level.INFO).log("Super apple: removed %d x %s in a cone of length %.0f (%d positions checked) in %.1f ms",
+        logger.atFine().log("[SuperApple] Removed %d x %s in a cone of length %.0f (%d positions checked) in %.1f ms",
                 removed, blockType.getId(), cone.length(), checked, micros / 1000.0);
     }
 

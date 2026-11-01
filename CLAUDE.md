@@ -79,7 +79,7 @@ Record design decisions per feature as the owner makes them; don't change decide
   - **Why an interaction:** it runs before the server's gather/quality checks, which only happen inside the vanilla `BreakBlock` interaction.
 - **Removal:** `AreaRemover` sets the blocks straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). This means no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated.
   - **No commands (decided 2026-11-01):** the dev command `/lawofmilk appleradius` (radius, later cone length, at runtime) was removed together with the whole `/lawofmilk` command; the mod has no commands now.
-  - **Timing:** every removal logs its block count and time.
+  - **Timing:** every removal logs its block count and time (`[SuperApple]`, debug level).
 - **History (2026-10-22):**
   1. Iron Hatchet trigger with `DamageBlockEvent` (damage boost) + `BreakBlockEvent` (area), area via per-block `BlockHarvestUtils.performBlockBreak`.
   2. Area switched to `setBlock`.
@@ -102,7 +102,7 @@ Record design decisions per feature as the owner makes them; don't change decide
   - The "enough stamina?" checks (`StatsConditionWithModifier` `Costs`) still need the full cost.
   - A cost that crosses 0 still triggers the `Stamina.json` `MinValueEffects` (regen delay, `Stamina_Broken` check) before the refund.
   - Only the net change per tick is seen, so regen in the same tick hides a tiny part of a cost.
-- **Logging:** `[JungleCandle]` info lines when the candle starts and stops counting for a player.
+- **Logging:** `[JungleCandle]` debug lines when the candle starts and stops counting for a player.
 - **Confirmed in game (2026-10-23):** half stamina use while sprinting, also from an inactive off-hand slot with a weapon in the main hand; normal again once the candle is removed. No visible stamina bar flicker from the server-side refund, even with charged weapon abilities.
 - **Parked idea (2026-10-23): grass and flowers grow around a candle holder.** The owner scrapped it for now; nothing is implemented. Research so far (0.7.2):
   - **Vanilla:** wild grass, ferns and flowers (`Plant_Grass_*`, `Plant_Fern_*`, 82 `Plant_Flower_*`) are placed by world generation only. They have no random tick and no growth or farming data, so broken ones never come back. They need soil below (`Support.Down: Type=Soil`; flowers also allow `SubType=Planter`).
@@ -139,7 +139,7 @@ Record design decisions per feature as the owner makes them; don't change decide
   - **Fresh copies (decided 2026-11-01):** uniqueness is by item ID only, and the new item is always a fresh `new ItemStack(id, 1)`: full durability, no metadata (a filled Void Capture Crate yields empty crates). A stackable item whose stacks carry metadata (rare) therefore starts its own fresh stack.
   - **Rate (decided 2026-11-01):** one item per unique ID every 60 s (`GrowingChest.INTERVAL`). Tested in game at 2 s with a dev command `/lawofmilk chestinterval`, which was removed afterwards (owner, 2026-11-01).
   - Only while the chunk is loaded; no catch-up for time the chunk was unloaded.
-- **Hidden (decided 2026-11-01):** no sound, particles or UI. `[GrowingChest]` info lines when a chest starts or stops growing (with its position). "Stopped" is only logged when the stack breaks while loaded; a chunk unload or a broken chest just ends ticking, and the reloaded or new chest logs "is growing" again.
+- **Hidden (decided 2026-11-01):** no sound, particles or UI. `[GrowingChest]` debug lines when a chest starts or stops growing (with its position). "Stopped" is only logged when the stack breaks while loaded; a chunk unload or a broken chest just ends ticking, and the reloaded or new chest logs "is growing" again.
 - **Mechanism:** `ChestGrowthSystem`, a chunk store `EntityTickingSystem` over all container blocks (`ItemContainerBlock` + `BlockModule.BlockStateInfo`, the same block entity lookup as the vanilla `BenchSystems`). It checks the chest's base block ID (`getDefaultStateKey()`, falling back to the ID: an opened or closed chest is a different block type per state, `OpenWindow`/`CloseWindow`; comparing the plain ID stopped growth after the first opening, fixed 2026-11-01) and the two blocks below (ID, not a filler cell, rotation index), keeps a per-chest `GrowthTimer` (unit-tested), and adds items with `ItemContainer.addItemStack`. The container's change event marks the chest for saving (vanilla `ItemContainerSystems`). Unique IDs in slot order: `UniqueItems` (unit-tested). When the chest is nearly full, IDs earlier in slot order get the free slots first.
 
 ## Versions
@@ -152,6 +152,7 @@ Version in `gradle.properties` (`./gradlew updatePluginManifest` after changing 
 
 - One responsibility per class.
 - Log through the plugin logger with a clear prefix; no `System.out`.
+- **Silent unless debugging (decided 2026-11-01):** the mod prints nothing to the console in normal play. All its log lines use `logger.atFine()`; the server's default level is INFO, so they're hidden. To see them, set the plugin logger (`lawofmilk|P`) to FINE: `log lawofmilk|P --level=FINE` in the server console (until restart; add `--save` to store it in `run/config.json` `LogLevels`; `--level=INFO` turns it off again), or start the server with `--log lawofmilk|P:FINE`. Warnings and errors may still use higher levels. Player-facing chat messages (the capture crate's refusals) are not console output and stay.
 - Keep game-independent logic in plain Java classes and unit-test it without a server.
 - Small, reviewable changes. Explain non-obvious Hytale-specific code with a short comment.
 - Don't add third-party dependencies without asking.
