@@ -148,7 +148,7 @@ Targets Hytale **0.7.5** since 2026-11-01 (owner; manifest `>=0.7.5 <0.8.0`, was
 
 Version in `gradle.properties` (`./gradlew updatePluginManifest` after changing it). Every release gets a short, player-facing entry in `CHANGELOG.md` (decided 2026-10-24). 0.1.0 is the state of tag `v0.1.0` (2026-10-23); the owner then jumped to 1.1.0 on 2026-10-24.
 
-- **Unreleased on `main` (2026-11-01):** package/group rename to `olvrbu` (mod ID `olvrbu:lawofmilk`; no data folder or commands, so only the old jar must go). Changelog entry under `## Unreleased`.
+- **1.4.0 (2026-11-01):** only the package/group rename to `olvrbu` (mod ID `olvrbu:lawofmilk`; no data folder or commands, so only the old jar must go). Released without an in-game test (owner's choice). First release built by `release.yml`.
 
 **Releasing (since 2026-11-01):** bump `version`, `./gradlew updatePluginManifest`, give the changelog section its heading (`## <version> (<date>)`), commit, tag `v<version>`, push the tag. `.github/workflows/release.yml` (same as the other mods) builds the jar on GitHub and publishes a GitHub Release with it. v0.1.0–v1.2.0 target 0.7.2, which GitHub can't download anymore, so their release jars were built in the sandbox and uploaded with `gh release create`.
 

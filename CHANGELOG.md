@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.0 (2026-11-01)
 
 - The mod's ID changed from `obut:lawofmilk` to `olvrbu:lawofmilk` (new author name).
   **When updating, delete the old `lawofmilk-1.3.0.jar`** (or older) from your `mods/` folder,
