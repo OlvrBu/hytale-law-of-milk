@@ -24,6 +24,5 @@ public class LawOfMilkPlugin extends JavaPlugin {
         JungleCandle.register(this);
         HostileCrate.register(this);
         GrowingChest.register(this);
-        getCommandRegistry().registerCommand(new LawOfMilkCommand());
     }
 }

@@ -8,12 +8,15 @@ import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import javax.annotation.Nonnull;
@@ -21,8 +24,9 @@ import javax.annotation.Nullable;
 
 /**
  * The apple's primary (left-click) interaction, set in our override of {@code Plant_Fruit_Apple}.
- * If the super apple is active, removes the clicked block and every block of its type within
- * {@link SuperApple#radius} at once (no damage, cracks or drops; any block type). Otherwise it
+ * If the super apple is active, removes the clicked block and every block of its type in a cone
+ * from the player's body along their view (see {@link SuperApple}) at once (no damage, cracks or
+ * drops; any block type). Otherwise it
  * fails, so the JSON's {@code "Failed"} branch continues with the vanilla {@code Block_Primary}
  * chain and the apple punches as usual.
  *
@@ -54,10 +58,32 @@ public class SuperAppleInteraction extends SimpleBlockInteraction {
             context.getState().state = InteractionState.Failed;
             return;
         }
-        Vector3i center = new Vector3i(targetBlock);
-        int radius = SuperApple.radius;
+        Cone cone = viewCone(commandBuffer, context.getEntity());
+        if (cone == null) {
+            context.getState().state = InteractionState.Failed;
+            return;
+        }
+        Vector3i clicked = new Vector3i(targetBlock);
         // The interaction runs inside the entity store's tick; change blocks in a separate task.
-        world.execute(() -> AreaRemover.removeArea(world, center, blockType, radius, SuperApple.logger()));
+        world.execute(() -> AreaRemover.removeArea(world, clicked, blockType, cone, SuperApple.logger()));
+    }
+
+    /** The cone from the player's body along their view direction, or null if the player has no position or head rotation. */
+    @Nullable
+    private static Cone viewCone(CommandBuffer<EntityStore> commandBuffer, Ref<EntityStore> player) {
+        TransformComponent transform = commandBuffer.getComponent(player, TransformComponent.getComponentType());
+        HeadRotation head = commandBuffer.getComponent(player, HeadRotation.getComponentType());
+        if (transform == null || head == null) {
+            return null;
+        }
+        // The position is at the feet; the cone's tip runs from there up by the player's height.
+        Vector3d feet = transform.getPosition();
+        Vector3d look = head.getDirection();
+        if (look.lengthSquared() == 0) {
+            return null;
+        }
+        return new Cone(feet.x, feet.y, feet.z, SuperApple.TIP_HEIGHT, look.x, look.y, look.z,
+                SuperApple.LENGTH, SuperApple.HALF_ANGLE_DEGREES);
     }
 
     /** The block type at {@code pos}, looked up the same way {@link SimpleBlockInteraction} does. */

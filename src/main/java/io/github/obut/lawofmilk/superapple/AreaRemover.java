@@ -17,7 +17,7 @@ import org.joml.Vector3i;
 import java.util.logging.Level;
 
 /**
- * Removes every block of one type within a sphere (the blocks don't have to be connected) and
+ * Removes every block of one type within a {@link Cone} (the blocks don't have to be connected) and
  * logs how many it removed and how long that took.
  *
  * <p>The blocks are set straight to air with {@link BlockOperations#setBlock}, not broken like
@@ -35,8 +35,12 @@ final class AreaRemover {
     private AreaRemover() {
     }
 
-    /** Removes every block of {@code blockType} within {@code radius} blocks of {@code center}, center included. Runs on the world thread. */
-    static void removeArea(World world, Vector3i center, BlockType blockType, int radius, HytaleLogger logger) {
+    /**
+     * Removes every block of {@code blockType} whose center lies inside {@code cone}, plus the
+     * clicked block itself (it may sit just outside the cone when clicked near its edge). Runs on
+     * the world thread.
+     */
+    static void removeArea(World world, Vector3i clicked, BlockType blockType, Cone cone, HytaleLogger logger) {
         long start = System.nanoTime();
         int blockId = BlockType.getAssetMap().getIndex(blockType.getId());
         ChunkStore chunks = world.getChunkStore();
@@ -44,38 +48,54 @@ final class AreaRemover {
         SectionCache cache = new SectionCache(chunks, chunkStore);
         int checked = 0;
         int removed = 0;
-        int radiusSquared = radius * radius;
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                int y = center.y + dy;
-                if (y < MIN_Y || y >= MAX_Y) {
-                    continue;
-                }
+        int minX = (int) Math.floor(cone.minX());
+        int maxX = (int) Math.floor(cone.maxX());
+        int minY = Math.max(MIN_Y, (int) Math.floor(cone.minY()));
+        int maxY = Math.min(MAX_Y - 1, (int) Math.floor(cone.maxY()));
+        int minZ = (int) Math.floor(cone.minZ());
+        int maxZ = (int) Math.floor(cone.maxZ());
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
                 // z innermost: consecutive positions are almost always in the same section.
-                for (int dz = -radius; dz <= radius; dz++) {
-                    if (dx * dx + dy * dy + dz * dz > radiusSquared) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    boolean isClicked = x == clicked.x && y == clicked.y && z == clicked.z;
+                    if (!isClicked && !cone.containsBlock(x, y, z)) {
                         continue;
                     }
-                    int x = center.x + dx;
-                    int z = center.z + dz;
                     checked++;
-                    if (!cache.moveTo(x, y, z)) {
-                        continue; // chunk not loaded
+                    if (removeIfMatches(chunks, cache, x, y, z, blockId)) {
+                        removed++;
                     }
-                    BlockSection blocks = cache.blockSection;
-                    // Skip filler cells of multi-block blocks: setBlock on the origin cell removes them.
-                    if (blocks.get(x, y, z) != blockId || blocks.getFiller(x, y, z) != 0) {
-                        continue;
-                    }
-                    BlockOperations.setBlock(chunks, cache.ref, cache.section, blocks, cache.blockComponents, cache.heightmap,
-                            x, y, z, 0, BlockType.EMPTY, 0, 0, SETTINGS);
-                    removed++;
                 }
             }
         }
+        // The clicked block lies outside the box only if the cone is shorter than the player's reach.
+        boolean clickedInBox = clicked.x >= minX && clicked.x <= maxX && clicked.y >= minY && clicked.y <= maxY
+                && clicked.z >= minZ && clicked.z <= maxZ;
+        if (!clickedInBox) {
+            checked++;
+            if (removeIfMatches(chunks, cache, clicked.x, clicked.y, clicked.z, blockId)) {
+                removed++;
+            }
+        }
         long micros = (System.nanoTime() - start) / 1000;
-        logger.at(Level.INFO).log("Super apple: removed %d x %s within radius %d (%d positions checked) in %.1f ms",
-                removed, blockType.getId(), radius, checked, micros / 1000.0);
+        logger.at(Level.INFO).log("Super apple: removed %d x %s in a cone of length %.0f (%d positions checked) in %.1f ms",
+                removed, blockType.getId(), cone.length(), checked, micros / 1000.0);
+    }
+
+    /** Sets (x, y, z) to air if it's loaded and holds {@code blockId} itself; returns whether it did. */
+    private static boolean removeIfMatches(ChunkStore chunks, SectionCache cache, int x, int y, int z, int blockId) {
+        if (!cache.moveTo(x, y, z)) {
+            return false; // chunk not loaded
+        }
+        BlockSection blocks = cache.blockSection;
+        // Skip filler cells of multi-block blocks: setBlock on the origin cell removes them.
+        if (blocks.get(x, y, z) != blockId || blocks.getFiller(x, y, z) != 0) {
+            return false;
+        }
+        BlockOperations.setBlock(chunks, cache.ref, cache.section, blocks, cache.blockComponents, cache.heightmap,
+                x, y, z, 0, BlockType.EMPTY, 0, 0, SETTINGS);
+        return true;
     }
 
     /**

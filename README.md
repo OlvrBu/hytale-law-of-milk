@@ -2,7 +2,7 @@
 
 A Hytale server plugin. Work in progress.
 
-> Built against Hytale Early Access **0.7.2** (`ServerVersion >=0.7.2 <0.8.0`).
+> Built against Hytale Early Access **0.7.5** (`ServerVersion >=0.7.5 <0.8.0`).
 
 ## Development
 

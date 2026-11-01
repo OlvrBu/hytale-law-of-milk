@@ -61,12 +61,15 @@ Record design decisions per feature as the owner makes them; don't change decide
   - **Replaced behavior:** every use played the scream at a random point within 6 blocks (2026-10-22).
 - **Rejected:** an echo variant of the sound. The owner didn't like it, so it was removed.
 
-### Super apple (`superapple`): done, confirmed in game 2026-10-22
+### Super apple (`superapple`): done, confirmed in game 2026-10-22, cone shape confirmed 2026-11-01
 
 - **Activation:** left-clicking a block with a vanilla `Plant_Fruit_Apple` in hand, while the storage's **bottom-right slot** holds at least one `Food_Pie_Pumpkin` and the **slot to its left** at least one `Food_Pie_Apple`. Hotbar and backpack don't count.
   - **Slot numbers:** storage is 9 columns × 4 rows (slots 0–35). The client shows it row by row from the top left, so bottom-right = last slot (35) and its left neighbor = 34; confirmed in game 2026-10-22.
   - **Replaced condition:** exactly 3 `Ingredient_Crystal_Void` + 1 `Ingredient_Crystal_White` anywhere in the inventory (the earlier version).
-- **Effect:** the clicked block and every block of the same type (same block id, filler cells skipped) within a sphere of radius `SuperApple.radius` vanish at once; the blocks don't have to be connected. No damage, no cracks, no drops (owner's choice), and **any** block type works, including quality-gated (`Rock_Basalt`) and Unbreakable blocks (owner's choice: allow everything).
+- **Effect:** the clicked block and every block of the same type (same block id, filler cells skipped) inside a cone vanish at once; the blocks don't have to be connected.
+  - **Cone (decided and confirmed in game 2026-11-01):** pointing along the view direction (`HeadRotation`). The tip is a vertical line from the player's feet up `TIP_HEIGHT` (2 blocks, the player's height), not a point. A block counts if its center, seen from some point of the tip (tested every 0.1 block), is at most `SuperApple.LENGTH` (10) away and at most `HALF_ANGLE_DEGREES` (20°, so a 40° opening angle) off the axis. So the cut is 2 blocks tall at the player, widens from there, and has a rounded far end. The clicked block is always removed, even if its center is just outside. Math in `Cone` (unit-tested).
+  - **First cone version (2026-11-01, tried in game the same day):** point tip at the eyes (feet + model eye height), 15° half angle. The owner wanted the tip as tall as the player and a wider angle.
+  - **Replaced shape:** a sphere of radius 5 around the clicked block (2026-10-22 to 2026-11-01). No damage, no cracks, no drops (owner's choice), and **any** block type works, including quality-gated (`Rock_Basalt`) and Unbreakable blocks (owner's choice: allow everything).
 - **Mechanism (decided 2026-10-22):**
   - **Apple override:** our asset pack overrides the vanilla `Plant_Fruit_Apple` (`Server/Item/Items/Plant/Fruit/Plant_Fruit_Apple.json`, same path as vanilla; confirmed in game that ours wins). It's a copy of the vanilla JSON plus `Interactions`:
     - `Primary`: the custom `LawOfMilk_SuperApple` interaction (`SuperAppleInteraction`, a `SimpleBlockInteraction` with `UseLatestTarget`) with `"Failed": "Block_Primary"`, so without the condition the vanilla punch chain runs. Cooldowns are copied from the vanilla root `Block_Primary`.
@@ -75,7 +78,7 @@ Record design decisions per feature as the owner makes them; don't change decide
     **Re-sync this JSON with the vanilla apple after game updates.**
   - **Why an interaction:** it runs before the server's gather/quality checks, which only happen inside the vanilla `BreakBlock` interaction.
 - **Removal:** `AreaRemover` sets the blocks straight to air with `BlockOperations.setBlock` (full overload, chunk section components cached per 32³ section, `NO_SEND_PARTICLES`). This means no `BreakBlockEvent` (other plugins can't veto it), no drops, sounds, physics or neighbor updates, no on-break interactions. Heightmap, lighting, block entities and filler cells are still updated.
-  - **Dev command:** `/lawofmilk appleradius <0-32>` sets the radius at runtime (default 5). It's operator-only and not saved.
+  - **No commands (decided 2026-11-01):** the dev command `/lawofmilk appleradius` (radius, later cone length, at runtime) was removed together with the whole `/lawofmilk` command; the mod has no commands now.
   - **Timing:** every removal logs its block count and time.
 - **History (2026-10-22):**
   1. Iron Hatchet trigger with `DamageBlockEvent` (damage boost) + `BreakBlockEvent` (area), area via per-block `BlockHarvestUtils.performBlockBreak`.
