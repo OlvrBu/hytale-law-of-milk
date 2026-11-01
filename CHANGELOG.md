@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.0 (2026-11-01)
+
+Requires Hytale 0.7.5 or newer.
+
+- **Growing chest:** a single Ancient Small Chest standing on a Large Iron Pipe Mouthpiece, which
+  stands on a Decorative Goblin Iron block (both placed upright, the chest facing any way), adds one
+  of each item it holds every minute. Two stacks of the same item still count once. New items fill
+  existing stacks first and then free slots, and are always fresh copies (full durability, no
+  contents). Nothing is added while the chunk isn't loaded.
+- **Super apple:** now removes blocks in a cone along your view instead of a sphere: 10 blocks long,
+  40 degrees across, and as tall as you right where you stand.
+- **Super apple:** the `/lawofmilk appleradius` command is gone; the mod has no commands now.
+- **Jungle candle:** stronger: stamina costs −75% (was −50%), 1 health every 3 seconds (was 5),
+  fall damage −75% (was −50%).
+- The mod no longer writes to the server console in normal play. Its messages are at debug level;
+  show them with `log lawofmilk|P --level=FINE` in the server console.
+
 ## 1.2.0 (2026-10-26)
 
 - **Void Capture Crate:** a new capture crate for hostile creatures, bosses included. A creature can
