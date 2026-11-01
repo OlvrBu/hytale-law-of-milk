@@ -2,7 +2,7 @@
 
 ## What this project is
 
-A Hytale (Early Access, 0.7.x) server plugin + asset pack. Name: "Law Of Milk" (mod ID `lawofmilk`, package `io.github.obut.lawofmilk`, main class `LawOfMilkPlugin`).
+A Hytale (Early Access, 0.7.5+) server plugin + asset pack. Name: "Law Of Milk" (mod ID `lawofmilk`, package `io.github.obut.lawofmilk`, main class `LawOfMilkPlugin`).
 
 The mod is a collection of small, independent fun ideas, of very different implementation depth. It's both for fun and for exploring and pushing what the modding API can do. Each idea lives in its own subpackage of `io.github.obut.lawofmilk` with a `register(...)` method called from `LawOfMilkPlugin.setup()`, and its own section under [Features](#features).
 
@@ -126,7 +126,21 @@ Record design decisions per feature as the owner makes them; don't change decide
 - **Mechanism:** `HostileCrateInteraction` (type `LawOfMilk_UseHostileCrate`) subclasses the vanilla `UseCaptureCrateInteraction` (`builtin/adventure/farming/interactions/`) and inherits its codec (`AcceptedNpcGroups`, `FullIcon`). `tick0` runs our checks before the vanilla catch; `interactWithBlock` removes the crate after the vanilla release. On refusal it jumps to the `Failed` label itself, copying `SimpleInteraction.tick0`. **Re-check against the vanilla interaction after game updates.**
 - **Unverified:** the `nameFull` lang key (`Void Capture Crate ({npc})`) mirrors vanilla's `items.Tool_Capture_Crate.nameFull`, but the client code that reads it isn't visible to us.
 
+### Growing chest (`growingchest`): done, confirmed in game 2026-11-01
+
+- **Idea (owner, 2026-11-01):** a chest on a goblin pipe pedestal slowly multiplies its contents.
+- **Structure (decided 2026-11-01):** a single `Furniture_Ancient_Chest_Small` (the double chest is a different block, `Furniture_Ancient_Chest_Large`, so it doesn't count) directly on a `Metal_Goblin_Iron_Pipe_Large_Mouthpiece`, directly on a `Metal_Goblin_Iron_Decorative`. Both lower blocks must have **rotation index 0** (yaw 0, pitch 0, roll 0; the owner checked in game which way that is). The chest may face any way. All three are unchanged vanilla blocks.
+  - **Rotation index:** `RotationTuple` index = `roll·16 + pitch·4 + yaw` (each 0–3 for 0/90/180/270°). Both lower blocks use `VariantRotation` `DoublePipe`, which only allows 0, 4–7 (pitch 90°) and 8 (pitch 180°). No vanilla command prints the index (`/block get` shows only the ID; `/block inspectrotation` only draws coloured debug cubes).
+- **Growth (decided 2026-11-01):** every `GrowingChest.INTERVAL` seconds, each **unique item ID** in the chest gains one item, however many stacks of it there are. The item goes to a stack with room (up to its max stack size), else to a free slot; if neither exists, nothing happens. Non-stackable items get one copy in a free slot.
+  - **Fresh copies (decided 2026-11-01):** uniqueness is by item ID only, and the new item is always a fresh `new ItemStack(id, 1)`: full durability, no metadata (a filled Void Capture Crate yields empty crates). A stackable item whose stacks carry metadata (rare) therefore starts its own fresh stack.
+  - **Rate (decided 2026-11-01):** one item per unique ID every 60 s (`GrowingChest.INTERVAL`). Tested in game at 2 s with a dev command `/lawofmilk chestinterval`, which was removed afterwards (owner, 2026-11-01).
+  - Only while the chunk is loaded; no catch-up for time the chunk was unloaded.
+- **Hidden (decided 2026-11-01):** no sound, particles or UI. `[GrowingChest]` info lines when a chest starts or stops growing (with its position). "Stopped" is only logged when the stack breaks while loaded; a chunk unload or a broken chest just ends ticking, and the reloaded or new chest logs "is growing" again.
+- **Mechanism:** `ChestGrowthSystem`, a chunk store `EntityTickingSystem` over all container blocks (`ItemContainerBlock` + `BlockModule.BlockStateInfo`, the same block entity lookup as the vanilla `BenchSystems`). It checks the chest's base block ID (`getDefaultStateKey()`, falling back to the ID: an opened or closed chest is a different block type per state, `OpenWindow`/`CloseWindow`; comparing the plain ID stopped growth after the first opening, fixed 2026-11-01) and the two blocks below (ID, not a filler cell, rotation index), keeps a per-chest `GrowthTimer` (unit-tested), and adds items with `ItemContainer.addItemStack`. The container's change event marks the chest for saving (vanilla `ItemContainerSystems`). Unique IDs in slot order: `UniqueItems` (unit-tested). When the chest is nearly full, IDs earlier in slot order get the free slots first.
+
 ## Versions
+
+Targets Hytale **0.7.5** since 2026-11-01 (owner; manifest `>=0.7.5 <0.8.0`, was 0.7.2). Vanilla assets: `~/.gradle/caches/hytale-assets/release-0.7.5-Assets.zip`.
 
 Version in `gradle.properties` (`./gradlew updatePluginManifest` after changing it). Every release gets a short, player-facing entry in `CHANGELOG.md` (decided 2026-10-24). 0.1.0 is the state of commit `cec8ca7` (2026-10-23); the owner then jumped to 1.1.0 on 2026-10-24.
 
