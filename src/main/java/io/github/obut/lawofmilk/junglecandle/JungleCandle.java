@@ -17,12 +17,12 @@ public final class JungleCandle {
 
     static final String ITEM_ID = "Furniture_Jungle_Candle";
     /** Share of every stamina cost that is given back. */
-    static final float STAMINA_REDUCTION = 0.5f;
+    static final float STAMINA_REDUCTION = 0.75f;
     /** Health healed every REGEN_INTERVAL seconds. */
     static final float REGEN_AMOUNT = 1.0f;
-    static final float REGEN_INTERVAL = 5.0f;
+    static final float REGEN_INTERVAL = 3.0f;
     /** Share of fall damage that is taken away. */
-    static final float FALL_DAMAGE_REDUCTION = 0.5f;
+    static final float FALL_DAMAGE_REDUCTION = 0.75f;
 
     private JungleCandle() {
     }
