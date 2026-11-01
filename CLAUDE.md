@@ -2,9 +2,9 @@
 
 ## What this project is
 
-A Hytale (Early Access, 0.7.5+) server plugin + asset pack. Name: "Law Of Milk" (mod ID `lawofmilk`, package `io.github.obut.lawofmilk`, main class `LawOfMilkPlugin`).
+A Hytale (Early Access, 0.7.5+) server plugin + asset pack. Name: "Law Of Milk" (mod ID `lawofmilk`, package `io.github.olvrbu.lawofmilk`, main class `LawOfMilkPlugin`).
 
-The mod is a collection of small, independent fun ideas, of very different implementation depth. It's both for fun and for exploring and pushing what the modding API can do. Each idea lives in its own subpackage of `io.github.obut.lawofmilk` with a `register(...)` method called from `LawOfMilkPlugin.setup()`, and its own section under [Features](#features).
+The mod is a collection of small, independent fun ideas, of very different implementation depth. It's both for fun and for exploring and pushing what the modding API can do. Each idea lives in its own subpackage of `io.github.olvrbu.lawofmilk` with a `register(...)` method called from `LawOfMilkPlugin.setup()`, and its own section under [Features](#features).
 
 Created on 2026-10-22 from the HytaleModding plugin template (https://github.com/HytaleModding/plugin-template, commit `b7d12fd`). The template's example command, config and event classes were removed on 2026-10-22 (see the first commit for them). Note: the dev server uses `src/main/resources` as the plugin's data folder, so a plugin config saved with `Config.save()` lands there, along with a `.bak` of the previous version. The owner's first mod, Transmutation Chest (`../transmutation_chest`), is a finished, working example of a block component, custom UI, commands, config files and unit tests on this server version. Look there first for patterns that are already verified.
 

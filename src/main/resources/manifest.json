@@ -1,5 +1,5 @@
 {
-    "Group": "obut",
+    "Group": "olvrbu",
     "Name": "lawofmilk",
     "Version": "1.3.0",
     "Description": "",
@@ -19,7 +19,7 @@
         
     },
     "ServerVersion": ">=0.7.5 <0.8.0",
-    "Main": "io.github.obut.lawofmilk.LawOfMilkPlugin",
+    "Main": "io.github.olvrbu.lawofmilk.LawOfMilkPlugin",
     "UpdateChecker": {
         "CurseForge": ""
     }
