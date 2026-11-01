@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- The mod's ID changed from `obut:lawofmilk` to `olvrbu:lawofmilk` (new author name).
+  **When updating, delete the old `lawofmilk-1.3.0.jar`** (or older) from your `mods/` folder,
+  otherwise both versions load. Law Of Milk keeps no settings or data files, so there is nothing
+  else to move. Items and blocks keep their IDs.
+- No gameplay changes.
+
 ## 1.3.0 (2026-11-01)
 
 Requires Hytale 0.7.5 or newer.
